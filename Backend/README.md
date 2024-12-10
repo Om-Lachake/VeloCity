@@ -140,10 +140,58 @@ Allows existing users to log in by providing their email and password. Validates
 
 ---
 
+### 3. GET `/user/profile`
+
+#### Description
+Fetches the profile information of the currently authenticated user. The request must include a valid JWT token in the Authorization header or as a cookie.
+
+#### Responses
+- **Success Response**
+  - **Status Code:** `200 OK`
+  - **Content:**
+    ```json
+    {
+      "_id": "647fca324f84b23d28e041ab",
+      "fullname": {
+        "firstname": "Alice",
+        "lastname": "Smith"
+      },
+      "email": "alice@example.com"
+    }
+    ```
+
+- **Unauthorized Access**
+  - **Status Code:** `401 Unauthorized`
+  - **Content:**
+    ```json
+    {
+      "message": "Not authorized"
+    }
+    ```
+
+
+### 4. GET `/user/logout`
+
+#### Description
+Logs the user out by clearing their JWT token from the cookies and adding the token to the blacklist to invalidate it.
+
+#### Responses
+- **Success Response**
+  - **Status Code:** `200 OK`
+  - **Content:**
+    ```json
+    {
+      "message": "Logged out"
+    }
+    ```
+---
+
 ## Implementation Notes
 1. Passwords are hashed using `bcrypt` before being stored in the database.
 2. Tokens are generated using `jsonwebtoken` and returned as part of the response.
 3. Validation is handled using `express-validator` to ensure proper input formats.
+4. The authUser middleware checks if the user is authenticated before accessing protected routes like /user/profile 
+   and /user/logout.
 
 ---
 
@@ -154,4 +202,4 @@ Allows existing users to log in by providing their email and password. Validates
 ---
 
 ## Author
-This documentation describes the `/user/register` and `/user/login` endpoints of the project.
+This documentation describes the /user/register, /user/login, /user/profile, and /user/logout endpoints of the project. 
