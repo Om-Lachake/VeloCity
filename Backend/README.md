@@ -186,12 +186,160 @@ Logs the user out by clearing their JWT token from the cookies and adding the to
     ```
 ---
 
+
+# Captain API Documentation
+
+This document provides detailed information about the API endpoints for managing captains, including registration, login, profile access, and logout.
+
+## Endpoints
+
+### 1. **Register a Captain**
+   **Endpoint:** `/captains/register`  
+   **Method:** `POST`  
+
+   **Description:** Registers a new captain by creating a user in the system with their personal and vehicle details.
+
+   **Request Body:**
+   ```json
+   {
+       "fullname": {
+           "firstname": "string (min: 3 characters)",
+           "lastname": "string (optional, min: 3 characters)"
+       },
+       "email": "string (valid email format)",
+       "password": "string (min: 6 characters)",
+       "vehicle": {
+           "color": "string (min: 3 characters)",
+           "plate": "string (min: 3 characters)",
+           "capacity": "integer (min: 1)",
+           "vehicleType": "string (one of 'car', 'motorcycle', 'auto')"
+       }
+   }
+   ```
+
+   **Response:**
+   - **201 Created:** Registration successful, returns the captain's token and data.
+     ```json
+     {
+         "token": "string",
+         "captain": { "details_here" }
+     }
+     ```
+   - **400 Bad Request:** Validation errors or if the captain already exists.
+     ```json
+     { "message": "Captain already exists" }
+     ```
+
+---
+
+### 2. **Login a Captain**
+   **Endpoint:** `/captains/login`  
+   **Method:** `POST`  
+
+   **Description:** Authenticates a captain using their email and password.
+
+   **Request Body:**
+   ```json
+   {
+       "email": "string (valid email format)",
+       "password": "string (min: 6 characters)"
+   }
+   ```
+
+   **Response:**
+   - **200 OK:** Login successful, returns the captain's token and data.
+     ```json
+     {
+         "token": "string",
+         "captain": { "details_here" }
+     }
+     ```
+   - **400 Bad Request:** Validation errors.
+     ```json
+     { "errors": [ { "field": "email", "message": "Invalid Email" } ] }
+     ```
+   - **401 Unauthorized:** Invalid email or password.
+     ```json
+     { "message": "Invalid email or password" }
+     ```
+
+---
+
+### 3. **Get Captain Profile**
+   **Endpoint:** `/captains/profile`  
+   **Method:** `GET`  
+
+   **Description:** Fetches the authenticated captain's profile data.
+
+   **Headers:**
+   - `Authorization: Bearer <token>` or Cookie containing `token`
+
+   **Response:**
+   - **200 OK:** Returns the captain's profile.
+     ```json
+     { "captain": { "details_here" } }
+     ```
+   - **401 Unauthorized:** Invalid or missing token.
+     ```json
+     { "message": "Unauthorized" }
+     ```
+
+---
+
+### 4. **Logout a Captain**
+   **Endpoint:** `/captains/logout`  
+   **Method:** `GET`  
+
+   **Description:** Logs out the captain by blacklisting their token.
+
+   **Headers:**
+   - `Authorization: Bearer <token>` or Cookie containing `token`
+
+   **Response:**
+   - **200 OK:** Logout successful.
+     ```json
+     { "message": "Logout successfully" }
+     ```
+   - **401 Unauthorized:** Invalid or missing token.
+     ```json
+     { "message": "Unauthorized" }
+     ```
+
+## Validation Details
+
+1. **Register:** 
+   - `fullname.firstname`: Required, min 3 characters.
+   - `fullname.lastname`: Optional, min 3 characters.
+   - `email`: Required, valid email format.
+   - `password`: Required, min 6 characters.
+   - `vehicle.color`: Required, min 3 characters.
+   - `vehicle.plate`: Required, min 3 characters.
+   - `vehicle.capacity`: Required, min value of 1.
+   - `vehicle.vehicleType`: Required, one of `'car', 'motorcycle', 'auto'`.
+
+2. **Login:**
+   - `email`: Required, valid email format.
+   - `password`: Required, min 6 characters.
+
+---
+
+## Status Codes Summary
+
+| Status Code | Description                                      |
+|-------------|--------------------------------------------------|
+| 200         | Request successful                              |
+| 201         | Resource created successfully                   |
+| 400         | Bad request (e.g., validation errors)           |
+| 401         | Unauthorized access or invalid credentials      |
+
+
+
+
 ## Implementation Notes
 1. Passwords are hashed using `bcrypt` before being stored in the database.
 2. Tokens are generated using `jsonwebtoken` and returned as part of the response.
 3. Validation is handled using `express-validator` to ensure proper input formats.
-4. The authUser middleware checks if the user is authenticated before accessing protected routes like /user/profile 
-   and /user/logout.
+4. The authUser,authCaptain middleware checks if the user is authenticated before accessing protected routes like /user/profile , /user/logout,/captains/profile and /captains/logout,.
 
 ---
 
